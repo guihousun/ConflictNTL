@@ -1,5 +1,5 @@
 interface:
   display_name: "ConflictNTL Analysis"
-  short_description: "Conflict-event NTL workflow and figures"
+  short_description: "Skill-guided conflict NTL workflow"
   brand_color: "#2F5D50"
-  default_prompt: "Use $conflict-ntl-analysis to reproduce a ConflictNTL event-screening, AEQD buffer, VNP46A2 statistics, and manuscript-figure workflow."
+  default_prompt: "Use $conflict-ntl-analysis to orchestrate ConflictNTL event filtering, AEQD impact zones, VNP46A2 statistics, and manuscript figures with separate MCP GIS tools and bundled scripts."

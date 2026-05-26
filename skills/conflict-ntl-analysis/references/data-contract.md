@@ -5,7 +5,7 @@ new conflict case.
 
 ## Required Event Fields
 
-The screened event table must include:
+The filtered event table must include:
 
 - `event_id`: stable event identifier.
 - `longitude`: event longitude in EPSG:4326.
@@ -26,15 +26,24 @@ Values such as `1.0` and `1` must map to the same key.
 
 ## Boundary Inputs
 
-The current project uses OSM/geoBoundaries-derived boundaries for screening and
-visualization. Administrative boundaries are supporting context, not the final
-impact-zone definition.
+The current project uses geoBoundaries administrative boundaries for filtering,
+labels, and visualization. The event-filtering order is:
+
+```text
+geoBoundaries ADM0 -> HOTOSM building footprint -> LLM NTL applicability
+```
+
+ADM1/ADM2 labels are added after filtering as reporting context. HOTOSM
+building footprints may be used for event relevance filtering, but
+administrative boundaries should not be named or described as OSM boundaries in
+the current workflow. Administrative boundaries are supporting context, not the
+final impact-zone definition.
 
 Current local boundary/cache examples:
 
 ```text
-D:\Research_vault\raw\writing\conflictntl\data\osm_admin_boundaries
-D:\Research_vault\raw\datasets\geoboundaries
+${PROJECT_ROOT}/outputs/admin_scale_results/geoboundaries_cache
+${PROJECT_ROOT}/data/boundaries
 ```
 
 ## Nighttime-Light Data
@@ -53,8 +62,10 @@ Figure 4 daily curves.
 
 Table 1 should report top-10 core impact zones, not individual events. The
 `n` value is the number of original events assigned to that cluster. If a
-cluster spans multiple cities, use `cityA&cityB` style naming only when
-supported by boundary joins or spatial inspection.
+cluster spans multiple ADM2 units, name it with the two largest intersecting
+ADM2 areas by equal-area intersection, e.g. `Akko&Zefat cluster` or
+`Tehran&Karaj cluster`. Normalize duplicate administrative wording before
+selecting the two names, e.g. `City of Tehran` -> `Tehran`.
 
 ## Common Failure Modes
 
@@ -65,4 +76,3 @@ supported by boundary joins or spatial inspection.
   interpolated.
 - Administrative labels can be misleading near borders; verify multi-city
   clusters against geometry.
-

@@ -5,63 +5,68 @@ ConflictNTL Letter project.
 
 ## Project Defaults
 
-Current project workspace:
+Expected portable project layout:
 
 ```text
-D:\Research_vault\raw\writing\conflictntl
+${PROJECT_ROOT}/inputs/ISW_storymap_events_2026-02-27_2026-04-27.csv
+${PROJECT_ROOT}/data/event_screening_geoboundaries_v2_qgis/
+${PROJECT_ROOT}/attachments/
+${PROJECT_ROOT}/outputs/
 ```
 
-Current script source of truth:
+Bundled workflow scripts are under:
 
 ```text
-D:\Research_vault\raw\writing\conflictntl\scripts
+${SKILL_ROOT}/scripts
 ```
 
-Mature upstream script archive:
+The atomic MCP server is separate from the skill:
 
 ```text
-D:\Research_vault\raw\code\NTL\scripts\conflictntl-letter
+${REPO_ROOT}/mcp/conflictntl-gis-tools/server.py
 ```
 
-## Runtime Defaults
+## Periods
 
-QGIS screening uses QGIS Python:
+```text
+preconflict: 2026-02-14 to 2026-02-27
+conflict:    2026-02-28 to 2026-04-07
+ceasefire:   2026-04-08 to 2026-04-21
+```
+
+## Runtime Pattern
+
+Register MCP tools separately from this skill:
 
 ```powershell
-& "C:\Program Files\QGIS 4.0.2\apps\Python312\python.exe" `
-  "D:\Research_vault\raw\writing\conflictntl\scripts\qgis_screening\run_osm_v2_pyqgis.py"
+python "${REPO_ROOT}/mcp/conflictntl-gis-tools/server.py"
 ```
 
-GEE/NTL scripts normally use the `NTL-GPT-Stable` conda environment:
+Use MCP tools for atomic GIS operations. Use direct script calls for
+publication-specific workflow steps:
 
 ```powershell
-& "C:\Users\27334\miniconda3\Scripts\conda.exe" run -n NTL-GPT-Stable python `
-  "D:\Research_vault\raw\writing\conflictntl\scripts\aeqd_ntl\make_table1_aeqd_3km_clusters_ntl_complete.py"
+python "${SKILL_ROOT}/scripts/qgis_screening/run_geoboundaries_v2_pyqgis.py"
+python "${SKILL_ROOT}/scripts/aeqd_ntl/make_table1_aeqd_3km_clusters_ntl_complete.py"
+python "${SKILL_ROOT}/scripts/figures/export_figure3_v2_admin_ntl_panel_assets.py" --refresh-tiles
+python "${SKILL_ROOT}/scripts/figures/make_figure3_publication_3km_text13.py"
+python "${SKILL_ROOT}/scripts/figures/make_figure4_aeqd_3km_daily_curves.py"
 ```
 
-Figure 3 currently uses the `ntlgpt` environment:
-
-```powershell
-& "C:\Users\27334\miniconda3\envs\ntlgpt\python.exe" `
-  "D:\Research_vault\raw\writing\conflictntl\scripts\figures\make_figure3_publication_3km_text13.py"
-```
-
-Figure 4:
-
-```powershell
-& "C:\Users\27334\miniconda3\Scripts\conda.exe" run -n NTL-GPT-Stable python `
-  "D:\Research_vault\raw\writing\conflictntl\scripts\figures\make_figure4_aeqd_3km_daily_curves.py"
-```
+QGIS project or layout edits should use the global `qgis` MCP server or QGIS
+Python CLI rather than the ConflictNTL GIS MCP server.
 
 ## Authoritative Flow
 
 ```text
 ISW StoryMap events
-  -> LLM NTL applicability labels
-  -> HOTOSM/OSM building intersection filter
-  -> QGIS/geoBoundaries spatial screening
-  -> events_osm_v2_downstream.csv (2383 events)
-  -> AEQD 3 km or 5 km event buffers
+  -> date-window and valid-coordinate checks
+  -> geoBoundaries ADM0 filter for Iran and Israel
+  -> HOTOSM building-footprint intersection filter
+  -> LLM NTL-applicability filter
+  -> ADM1/ADM2 labels for reporting context
+  -> events_geoboundaries_v2_downstream.csv
+  -> AEQD 3 km event buffers
   -> dissolved connected core impact polygons
   -> GEE VNP46A2 daily ANTL
   -> Table 1, Figure 3 overlay, Figure 4 daily curves
@@ -72,7 +77,7 @@ ISW StoryMap events
 Output directory:
 
 ```text
-D:\Research_vault\raw\writing\conflictntl\data\event_screening_geoboundaries_v2_qgis\buffer_ntl_aeqd3
+${PROJECT_ROOT}/data/event_screening_geoboundaries_v2_qgis/buffer_ntl_aeqd3
 ```
 
 Expected key outputs:
@@ -86,31 +91,24 @@ Expected key outputs:
 - `aeqd_3km_top10_period_summary.csv`
 - `aeqd_3km_top10_table1_complete.csv`
 
-## Current 5 km Sensitivity Outputs
+## Optional 5 km Sensitivity Outputs
 
-Output directory:
-
-```text
-D:\Research_vault\raw\writing\conflictntl\data\event_screening_geoboundaries_v2_qgis\buffer_ntl_aeqd5
-```
-
-Expected key outputs:
-
-- `aeqd_5km_clusters_all_184.csv`
-- `aeqd_5km_clusters_all_184.geojson`
-- `aeqd_5km_membership_2383_points.csv`
-- `aeqd_5km_top10_clusters.geojson`
-- `aeqd_5km_top10_daily_antl.csv`
-- `aeqd_5km_top10_daily_panel.csv`
-- `aeqd_5km_top10_period_summary.csv`
-- `aeqd_5km_top10_table1_complete.csv`
+The current letter uses 3 km buffers only. The 5 km script is retained for
+method sensitivity checks and older drafts, but a fresh-machine manuscript
+reproduction should not run it unless explicitly requested.
 
 ## Validation Checklist
 
-- `events_osm_v2_downstream.csv` has 2383 event records.
+- `events_geoboundaries_v2_downstream.csv` has the manuscript-authoritative
+  filtered event count before it is used for Table 1 or figures.
+- If event filtering is rerun from raw events, compare downstream event IDs
+  against the manuscript table before replacing accepted outputs.
 - AEQD cluster count matches the selected buffer version.
 - Top-10 cluster GeoJSON is dissolved polygon geometry, not point markers.
-- Table 1 regions and event counts come from the same top-10 clusters used by figures.
-- Figure 3 overlays clusters only on difference panels and zooms, not on raw intensity panels.
+- Table 1 regions and event counts come from the same top-10 clusters used by
+  figures.
+- Figure 3 overlays clusters only on difference panels and zooms, not raw
+  intensity panels.
 - Figure 4 city/cluster labels match Table 1.
-
+- The publication Figure 4 exported from the clean 3 km run is
+  `attachments/v2_figure4_daily_curves_aeqd3km.*`.
