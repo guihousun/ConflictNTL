@@ -46,7 +46,23 @@ turn the whole workflow into one black-box tool.
 
 ## Tool Selection
 
-Use the standalone MCP tools when the task is atomic and reusable:
+Use the global `qgis` MCP server first when the operation is already covered by
+QGIS MCP:
+
+- QGIS project lifecycle: `create_new_project`, `load_project`,
+  `save_project`, `get_project_info`;
+- layer I/O and styling: `add_vector_layer`, `add_raster_layer`,
+  `add_web_layer`, `find_layer`, `get_layers`, `apply_style_qml`,
+  `save_style_qml`, `set_layer_visibility`;
+- QGIS processing and expressions: `execute_processing`,
+  `list_processing_algorithms`, `get_algorithm_help`, `validate_expression`;
+- layouts and export: `create_layout`, `add_layout_map`, `list_layouts`,
+  `export_layout`;
+- map interaction and diagnostics: `render_map`, `get_canvas_extent`,
+  `set_canvas_extent`, `get_qgis_info`, `diagnose`, `execute_code`.
+
+Use `mcp/conflictntl-gis-tools` only when the task is atomic and reusable but
+not better handled by QGIS MCP, especially headless/file-based operations:
 
 - download or inspect geoBoundaries files;
 - filter points by polygons;
@@ -54,8 +70,8 @@ Use the standalone MCP tools when the task is atomic and reusable:
 - create AEQD point buffers;
 - dissolve overlapping buffers into connected polygons.
 
-Use the global `qgis` MCP server or QGIS CLI when the task needs QGIS project
-state, layers, layouts, print composer items, or `.qgz` edits.
+If neither MCP layer covers the task cleanly, use QGIS CLI/PyQGIS or a bundled
+script.
 
 Use bundled scripts when the task is workflow-specific:
 

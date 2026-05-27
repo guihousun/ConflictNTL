@@ -10,8 +10,24 @@ scripts:
 - optional global `qgis` MCP server: QGIS-native project, layer, processing,
   and layout operations.
 
-The MCP server must be registered separately by the client. The skill teaches
-an agent when and how to use it.
+The MCP servers must be registered separately by the client. The skill teaches
+an agent when and how to use them.
+
+Example Codex MCP entries:
+
+```toml
+[mcp_servers.qgis]
+command = "uvx"
+args = ["--from", "git+https://github.com/nkarasiak/qgis-mcp", "qgis-mcp-server"]
+
+[mcp_servers.conflictntl-gis-tools]
+command = "python"
+args = ["D:/Research_vault/raw/mcp/conflictntl-gis-tools/server.py"]
+```
+
+If `mcp__conflictntl_gis_tools__...` tools are not visible after a refresh, the
+server is not registered in the active Codex config or the session has not been
+restarted after adding it.
 
 ## New-Machine Contract
 
@@ -35,7 +51,17 @@ A new Codex machine should be able to use this package after preparing:
 Use skill instructions when the task is: "decide the workflow sequence, choose
 which tool or script to run, and validate manuscript outputs."
 
-Use MCP tools when the task is an atomic capability:
+Prefer the global `qgis` MCP server for QGIS-native capabilities:
+
+- project and layer management;
+- QGIS Processing algorithms;
+- layout creation and export;
+- QML styles and labeling;
+- map rendering, canvas extent, and project diagnostics;
+- custom PyQGIS through `execute_code` when no typed QGIS MCP tool exists.
+
+Use `conflictntl-gis-tools` only for reusable headless GIS operations that are
+not better covered by QGIS MCP:
 
 - `download_geoboundary`
 - `inspect_vector`
